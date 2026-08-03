@@ -147,7 +147,8 @@ def home(request):
 
 
 def get_ai_response(prompt_text: str, model_name: str = SUMMARIZER_MODEL, messages_payload: list = None, temperature: float = 0.7) -> str:
-    if not API_KEY:
+    api_key = os.getenv("OPENROUTER_API_KEY", "") or API_KEY
+    if not api_key:
         return "⚠️ AI backend API key is missing."
 
     fallback_chain = [
@@ -167,7 +168,7 @@ def get_ai_response(prompt_text: str, model_name: str = SUMMARIZER_MODEL, messag
             response = requests.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
-                    "Authorization": f"Bearer {API_KEY}",
+                    "Authorization": f"Bearer {api_key}",
                     "Content-Type": "application/json",
                 },
                 json={
