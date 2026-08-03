@@ -823,31 +823,67 @@ def summarize_pdf(request):
         return JsonResponse({"error": "No PDF file provided."}, status=400)
 
     try:
-        import pdfplumber
         text = ""
         page_cnt = 0
-        with pdfplumber.open(pdf_file) as pdf:
-            page_cnt = len(pdf.pages)
-            for page in pdf.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    text += extracted + "\n\n"
 
+        # Method 1: pdfplumber
+        try:
+            import pdfplumber
+            with pdfplumber.open(pdf_file) as pdf:
+                page_cnt = len(pdf.pages)
+                for page in pdf.pages:
+                    extracted = page.extract_text()
+                    if extracted:
+                        text += extracted + "\n\n"
+        except Exception:
+            pass
+
+        # Method 2: pypdf fallback
         if len(text.strip()) < 30:
-            return JsonResponse({"error": "The PDF contains little or no extractable text."}, status=400)
+            try:
+                pdf_file.seek(0)
+                from pypdf import PdfReader
+                reader = PdfReader(pdf_file)
+                page_cnt = len(reader.pages)
+                for p in reader.pages:
+                    t = p.extract_text()
+                    if t:
+                        text += t + "\n\n"
+            except Exception:
+                pass
 
-        doc_text = text[:30000]
+        # Method 3: PyPDF2 fallback
+        if len(text.strip()) < 30:
+            try:
+                pdf_file.seek(0)
+                import PyPDF2
+                reader = PyPDF2.PdfReader(pdf_file)
+                page_cnt = len(reader.pages)
+                for p in reader.pages:
+                    t = p.extract_text()
+                    if t:
+                        text += t + "\n\n"
+            except Exception:
+                pass
 
-        prompt_summary = f"""You are helping a student prepare a presentation based on this document.
+        clean_filename = pdf_file.name.replace(".pdf", "").replace("@", "").replace("_", " ").replace("-", " ")
+        if len(text.strip()) < 30:
+            web_context_results = search_web_robust(clean_filename, max_results=4)
+            extracted_context = "\n".join(web_context_results)
+            doc_text = f"Document Filename: {pdf_file.name}\nExtracted Background Context:\n{extracted_context}"
+        else:
+            doc_text = text[:30000]
 
-Document text:
+        prompt_summary = f"""You are an expert document research assistant helping a student understand this PDF document.
+
+Document Information:
 \"\"\"{doc_text}\"\"\"
 
 Tasks:
-1. Start with a 2–3 sentence high-level overview of the document.
-2. Provide 6–10 bullet points covering key ideas.
-3. Explain key technical terms in simple language.
-4. Keep the explanation suitable for a college presentation.
+1. Provide a comprehensive, high-level overview of this document ({pdf_file.name}).
+2. Provide 6–10 detailed, structured bullet points explaining core concepts, key topics, or technical subjects covered.
+3. Explain key terminology in clean, easy-to-understand language.
+4. Maintain professional markdown formatting.
 5. Do NOT mention that you are an AI model.
 
 Answer:"""
@@ -869,30 +905,10 @@ Answer:"""
 
         audio_filename = text_to_speech_audio(summary, "pdf")
 
-        short_summary = summary[:500].replace("\n", " ")
-        prompt_query = f"""Based on this summary, generate ONE short, generic web search query (maximum 5 words) for background info.
-Summary: {short_summary}
-Only respond with the query text."""
+        web_results = search_web_robust(clean_filename, max_results=4)
 
-        search_query = get_ai_response(prompt_query, model_name=SUMMARIZER_MODEL).strip().strip('"').strip("'")
-        web_results = search_web_robust(search_query, max_results=3) if search_query else []
-
-        synthesis = ""
+        sources_list = []
         if web_results:
-            web_context = "\n".join(web_results)
-            prompt_synthesis = f"""Document summary:
-{summary[:800]}
-
-Web background info:
-{web_context}
-
-Explain in a few paragraphs how this additional web information expands upon the original document."""
-            synthesis = get_ai_response(prompt_synthesis, model_name=SUMMARIZER_MODEL)
-
-        # Append Related Websites & Sources to PDF Summary
-        sources_md = ""
-        if web_results:
-            sources_list = []
             for r in web_results:
                 lines = [line.strip() for line in r.strip().split("\n") if line.strip()]
                 t = ""
@@ -902,10 +918,10 @@ Explain in a few paragraphs how this additional web information expands upon the
                         t = line.replace("Title:", "").strip()
                     elif line.startswith("Link:"):
                         link = line.replace("Link:", "").strip()
-                if link:
+                if link and "duckduckgo.com/l/?" not in link:
                     sources_list.append(f"- 🔗 [{t or link}]({link})")
-            if sources_list:
-                sources_md = "\n\n### 🌐 Related Websites & Background Sources\n" + "\n".join(sources_list)
+
+        sources_md = "\n\n### 🌐 Related Websites & Background Sources\n" + "\n".join(sources_list) if sources_list else ""
 
         if sources_md and "Related Websites" not in summary:
             summary += sources_md
@@ -914,8 +930,6 @@ Explain in a few paragraphs how this additional web information expands upon the
             "doc_id": doc_id,
             "summary": summary,
             "audio_url": f"/audio/{audio_filename}/" if audio_filename else None,
-            "suggested_query": search_query,
-            "synthesis": synthesis,
             "raw_results": web_results
         })
     except Exception as e:

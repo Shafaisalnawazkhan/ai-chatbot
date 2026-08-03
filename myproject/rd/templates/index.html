@@ -2335,10 +2335,16 @@
             try {
                 const res = await fetch('/summarize_pdf/', { method: 'POST', body: formData });
                 const data = await res.json();
-                document.getElementById('summarizer-md').innerHTML = marked.parse(data.summary || 'PDF Analysis complete');
-                renderAudio('summarizer-audio', data.audio_url);
+                if (data.error) {
+                    document.getElementById('summarizer-md').innerHTML = `<div style="color:#ef4444; font-family:'Fira Code', monospace; padding:1rem; border:1px solid rgba(239,68,68,0.3); border-radius:12px; background:rgba(239,68,68,0.1);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>PDF Alert:</strong> ${escapeHtml(data.error)}</div>`;
+                } else {
+                    document.getElementById('summarizer-md').innerHTML = marked.parse(data.summary || 'PDF Analysis complete');
+                    renderAudio('summarizer-audio', data.audio_url);
+                }
                 loadAnalytics(); loadHistory();
-            } catch(e) {}
+            } catch(e) {
+                document.getElementById('summarizer-md').innerHTML = '<div style="color:#ef4444; font-family:\'Fira Code\', monospace;">Error analyzing PDF document.</div>';
+            }
         }
 
         async function runCodeSummary() {
