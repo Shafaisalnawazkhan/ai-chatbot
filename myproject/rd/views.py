@@ -189,7 +189,7 @@ def get_ai_response(prompt_text: str, model_name: str = SUMMARIZER_MODEL, messag
     return "⚠️ AI provider endpoint busy. Automatic retry fallback in progress..."
 
 
-def search_web_robust(query: str, max_results: int = 4):
+def search_web_robust(query: str, max_results: int = 5):
     results = []
     if not query.strip():
         return results
@@ -197,20 +197,48 @@ def search_web_robust(query: str, max_results: int = 4):
     try:
         from duckduckgo_search import DDGS
         with DDGS() as ddgs:
-            ddgs_gen = ddgs.text(
-                query,
-                region="us-en",
-                safesearch="moderate",
-                max_results=max_results,
-            )
+            ddgs_gen = ddgs.text(query, max_results=max_results)
             for r in ddgs_gen:
                 title = r.get("title", "").strip()
                 href = r.get("href", "").strip()
                 body = r.get("body", "").strip()
-                block = f"Title: {title}\nLink: {href}\nSnippet: {body}\n"
-                results.append(block)
-    except Exception as e:
-        results.append(f"Search Error: {str(e)}")
+                if href and not href.startswith("https://duckduckgo.com"):
+                    block = f"Title: {title}\nLink: {href}\nSnippet: {body}\n"
+                    results.append(block)
+    except Exception:
+        pass
+
+    if not results:
+        try:
+            import urllib.parse
+            import urllib.request
+            import re
+            encoded = urllib.parse.quote_plus(query)
+            url = f"https://html.duckduckgo.com/html/?q={encoded}"
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+            )
+            html = urllib.request.urlopen(req, timeout=8).read().decode('utf-8', errors='ignore')
+            matches = re.findall(r'<a class="result__url" href="([^"]+)".*?>(.*?)</a>', html, re.DOTALL)
+            title_matches = re.findall(r'<a class="result__a"[^>]*>(.*?)</a>', html, re.DOTALL)
+            for i in range(min(len(title_matches), max_results)):
+                t = re.sub(r'<[^>]+>', '', title_matches[i]).strip()
+                link = matches[i][0].strip() if i < len(matches) else ""
+                if link.startswith("//"):
+                    link = "https:" + link
+                elif link.startswith("/"):
+                    link = "https://duckduckgo.com" + link
+                if t and link:
+                    results.append(f"Title: {t}\nLink: {link}\nSnippet: {t}\n")
+        except Exception:
+            pass
+
+    if not results:
+        import urllib.parse
+        clean_q = urllib.parse.quote_plus(query)
+        results.append(f"Title: Wikipedia - {query}\nLink: https://en.wikipedia.org/wiki/Special:Search?search={clean_q}\nSnippet: Search Wikipedia for {query}\n")
+        results.append(f"Title: Google Search - {query}\nLink: https://www.google.com/search?q={clean_q}\nSnippet: Search Google for {query}\n")
 
     return results
 

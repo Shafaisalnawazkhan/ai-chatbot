@@ -855,9 +855,10 @@
             box-shadow: var(--theme-glow);
         }
 
-        #summarizer-md, #nemotron-md, .msg-bubble {
-            text-align: justify;
+        #summarizer-md, #nemotron-md, .msg-bubble, .response-card p, .response-card li {
+            text-align: justify !important;
             line-height: 1.6;
+            word-break: break-word;
         }
 
         /* CLAUDE CHAT CONTAINER WITH JUSTIFIED TEXT */
@@ -1663,10 +1664,10 @@
 
                         <!-- WEB -->
                         <div id="sum-panel-web" class="input-group">
-                            <label>// SEARCH QUERY</label>
-                            <div style="display:flex; gap:0.8rem;">
-                                <input type="text" id="web-query" class="custom-input" placeholder="e.g. Quantum AI advancements 2026">
-                                <button class="btn-submit" onclick="runWebSummary()">SEARCH</button>
+                            <label><i class="fa-solid fa-globe"></i> SEARCH QUERY</label>
+                            <div style="display:flex; gap:0.8rem; align-items:flex-start;">
+                                <textarea id="web-query" class="custom-text" rows="2" style="text-align:justify; flex:1;" placeholder="// Enter search query or topic..." onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); runWebSummary(); }"></textarea>
+                                <button class="btn-submit" style="height:54px; white-space:nowrap;" onclick="runWebSummary()"><i class="fa-solid fa-magnifying-glass"></i> SEARCH</button>
                             </div>
                         </div>
 
