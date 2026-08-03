@@ -1610,7 +1610,17 @@
                         </div>
                         <div class="input-group">
                             <label><i class="fa-solid fa-image"></i> UPLOAD MEDIA MATRIX (OPTIONAL)</label>
-                            <input type="file" id="nemotron-img" class="custom-input" accept="image/*">
+                            <input type="file" id="nemotron-img" class="custom-input" accept="image/*" onchange="previewNemotronImage(this)">
+                            <div id="nemotron-img-preview-box" style="display:none; margin-top:0.75rem; background:var(--input-bg); border:1.5px solid var(--card-border); border-radius:14px; padding:0.75rem 1rem; align-items:center; gap:1rem; flex-wrap:wrap;">
+                                <img id="nemotron-img-preview" src="" alt="Image Preview" style="max-height:120px; max-width:180px; border-radius:10px; object-fit:cover; border:1.5px solid var(--card-border); box-shadow:var(--theme-glow);">
+                                <div style="flex:1; min-width:150px;">
+                                    <div style="font-family:'Outfit', sans-serif; font-weight:700; font-size:0.92rem; color:var(--claude-accent); word-break:break-all;" id="nemotron-img-name">filename.png</div>
+                                    <div style="font-family:'Fira Code', monospace; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;" id="nemotron-img-size">0 KB</div>
+                                </div>
+                                <button type="button" class="action-icon-btn" onclick="clearNemotronImage()" style="color:#ef4444; border-color:rgba(239,68,68,0.4);" title="Remove Image">
+                                    <i class="fa-solid fa-trash"></i> Remove
+                                </button>
+                            </div>
                         </div>
                         <div class="input-group">
                             <label><i class="fa-solid fa-terminal"></i> PERCEPTION PROMPT</label>
@@ -2180,6 +2190,38 @@
                 renderAudio('nemotron-audio', data.audio_url);
                 loadAnalytics(); loadHistory();
             } catch(e) { document.getElementById('nemotron-md').innerHTML = 'Execution Complete.'; }
+        }
+
+        function previewNemotronImage(input) {
+            const previewBox = document.getElementById('nemotron-img-preview-box');
+            const previewImg = document.getElementById('nemotron-img-preview');
+            const fileNameEl = document.getElementById('nemotron-img-name');
+            const fileSizeEl = document.getElementById('nemotron-img-size');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    previewImg.src = e.target.result;
+                    fileNameEl.innerText = file.name;
+                    fileSizeEl.innerText = (file.size / 1024).toFixed(1) + ' KB • ' + (file.type || 'image');
+                    previewBox.style.display = 'flex';
+                };
+
+                reader.readAsDataURL(file);
+            } else {
+                clearNemotronImage();
+            }
+        }
+
+        function clearNemotronImage() {
+            const input = document.getElementById('nemotron-img');
+            if (input) input.value = '';
+            const previewBox = document.getElementById('nemotron-img-preview-box');
+            if (previewBox) previewBox.style.display = 'none';
+            const previewImg = document.getElementById('nemotron-img-preview');
+            if (previewImg) previewImg.src = '';
         }
 
         async function runWebSummary() {
