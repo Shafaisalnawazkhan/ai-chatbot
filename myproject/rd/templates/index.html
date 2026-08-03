@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI CORE — Ultimate Gemini, Claude & ChatGPT Engine</title>
+    <title>AI PERCEPTION HUB — Next-Gen Multimodal Intelligence Platform</title>
     <link rel="icon" type="image/png" href="/ai-logo/">
     <!-- Google Fonts & FontAwesome -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -403,6 +403,29 @@
             background: var(--claude-accent);
             color: var(--bg-dark);
             transform: scale(1.05);
+        }
+
+        .new-chat-header-btn {
+            background: var(--user-bubble);
+            border: 1px solid var(--card-border);
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: white;
+            box-shadow: var(--theme-glow);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .new-chat-header-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            opacity: 0.95;
         }
 
         .brand-title-box h1 {
@@ -1451,10 +1474,13 @@
             <!-- TOP HEADER BANNER -->
             <div class="top-header">
                 <div class="brand-section">
-                    <button class="toggle-sidebar-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                    <button class="toggle-sidebar-btn" onclick="toggleSidebar()" title="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
+                    <button class="new-chat-header-btn" onclick="startNewSession()" title="Start New Chat">
+                        <i class="fa-solid fa-plus"></i> <span>New Chat</span>
+                    </button>
                     <div class="brand-title-box">
-                        <h1 id="header-session-title">AI CORE HUB</h1>
-                        <p><span class="live-dot"></span> <span id="header-session-desc">GEMINI, CLAUDE & CHATGPT TRI-ENGINE INTELLIGENCE</span></p>
+                        <h1 id="header-session-title">AI PERCEPTION HUB</h1>
+                        <p><span class="live-dot"></span> <span id="header-session-desc">NEXT-GEN MULTIMODAL INTELLIGENCE PLATFORM</span></p>
                     </div>
                 </div>
                 <div class="analytics-bar">
@@ -1742,8 +1768,8 @@
                         <p>Write an optimized asynchronous worker pool in Python.</p>
                     </div>
                 </div>`;
-            document.getElementById('header-session-title').innerText = 'AI CORE HUB';
-            document.getElementById('header-session-desc').innerText = 'NEW CONVERSATION SESSION';
+            document.getElementById('header-session-title').innerText = 'AI PERCEPTION HUB';
+            document.getElementById('header-session-desc').innerText = 'NEXT-GEN MULTIMODAL INTELLIGENCE PLATFORM';
             showToast("Started New Chat Session");
         }
 
@@ -1858,8 +1884,8 @@
         async function openChatSession(sessionId, title, desc) {
             window.currentSessionId = sessionId;
             switchNavTab('chat');
-            document.getElementById('header-session-title').innerText = title || 'CHAT SESSION';
-            document.getElementById('header-session-desc').innerText = desc || 'AI SESSION CONVERSATION';
+            document.getElementById('header-session-title').innerText = 'AI PERCEPTION HUB';
+            document.getElementById('header-session-desc').innerText = title ? `ACTIVE SESSION: ${title.toUpperCase()}` : 'AI SESSION CONVERSATION';
 
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML = '';
@@ -2086,8 +2112,8 @@
                 document.getElementById(loadingId).remove();
                 
                 if (data.session_title) {
-                    document.getElementById('header-session-title').innerText = data.session_title;
-                    document.getElementById('header-session-desc').innerText = data.session_description;
+                    document.getElementById('header-session-title').innerText = 'AI PERCEPTION HUB';
+                    document.getElementById('header-session-desc').innerText = `ACTIVE SESSION: ${data.session_title.toUpperCase()}`;
                 }
 
                 const rawReply = data.response || 'Task complete';
