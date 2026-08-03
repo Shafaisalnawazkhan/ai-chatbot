@@ -744,6 +744,7 @@
             font-size: 0.95rem;
             outline: none;
             transition: all 0.25s ease;
+            text-align: justify;
         }
 
         textarea.custom-text:focus, input.custom-input:focus {
@@ -852,6 +853,11 @@
             background: var(--claude-accent);
             color: white;
             box-shadow: var(--theme-glow);
+        }
+
+        #summarizer-md, #nemotron-md, .msg-bubble {
+            text-align: justify;
+            line-height: 1.6;
         }
 
         /* CLAUDE CHAT CONTAINER WITH JUSTIFIED TEXT */
@@ -1666,17 +1672,41 @@
 
                         <!-- PDF -->
                         <div id="sum-panel-pdf" class="input-group" style="display:none;">
-                            <label>// UPLOAD PDF MATRIX</label>
-                            <input type="file" id="pdf-input" class="custom-input" accept=".pdf">
-                            <button class="btn-submit" style="margin-top:0.6rem;" onclick="runPdfSummary()">ANALYZE PDF</button>
+                            <label><i class="fa-solid fa-file-pdf"></i> UPLOAD PDF MATRIX</label>
+                            <input type="file" id="pdf-input" class="custom-input" accept=".pdf" onchange="previewPdfFile(this)">
+                            <div id="pdf-file-preview-box" style="display:none; margin-top:0.75rem; background:var(--input-bg); border:1.5px solid var(--card-border); border-radius:14px; padding:0.75rem 1rem; align-items:center; gap:1rem; flex-wrap:wrap;">
+                                <div style="width:42px; height:42px; border-radius:10px; background:rgba(239,68,68,0.15); color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid rgba(239,68,68,0.3); flex-shrink:0;">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                </div>
+                                <div style="flex:1; min-width:150px;">
+                                    <div style="font-family:'Outfit', sans-serif; font-weight:700; font-size:0.92rem; color:var(--claude-accent); word-break:break-all;" id="pdf-file-name">document.pdf</div>
+                                    <div style="font-family:'Fira Code', monospace; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;" id="pdf-file-size">0 KB</div>
+                                </div>
+                                <button type="button" class="action-icon-btn" onclick="clearPdfFile()" style="color:#ef4444; border-color:rgba(239,68,68,0.4);" title="Remove PDF">
+                                    <i class="fa-solid fa-trash"></i> Remove
+                                </button>
+                            </div>
+                            <button class="btn-submit" style="margin-top:0.6rem;" onclick="runPdfSummary()"><i class="fa-solid fa-file-contract"></i> ANALYZE PDF</button>
                         </div>
 
                         <!-- CODE -->
                         <div id="sum-panel-code" class="input-group" style="display:none;">
-                            <label>// UPLOAD CODE FILE OR SNIPPET</label>
-                            <input type="file" id="code-input" class="custom-input" style="margin-bottom:0.6rem;">
+                            <label><i class="fa-solid fa-code"></i> UPLOAD CODE FILE OR SNIPPET</label>
+                            <input type="file" id="code-input" class="custom-input" style="margin-bottom:0.6rem;" onchange="previewCodeFile(this)">
+                            <div id="code-file-preview-box" style="display:none; margin-bottom:0.75rem; background:var(--input-bg); border:1.5px solid var(--card-border); border-radius:14px; padding:0.75rem 1rem; align-items:center; gap:1rem; flex-wrap:wrap;">
+                                <div style="width:42px; height:42px; border-radius:10px; background:rgba(0,243,255,0.15); color:var(--cyber-cyan); display:flex; align-items:center; justify-content:center; font-size:1.4rem; border:1px solid var(--card-border); flex-shrink:0;">
+                                    <i class="fa-solid fa-code"></i>
+                                </div>
+                                <div style="flex:1; min-width:150px;">
+                                    <div style="font-family:'Outfit', sans-serif; font-weight:700; font-size:0.92rem; color:var(--claude-accent); word-break:break-all;" id="code-file-name">script.py</div>
+                                    <div style="font-family:'Fira Code', monospace; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;" id="code-file-size">0 KB</div>
+                                </div>
+                                <button type="button" class="action-icon-btn" onclick="clearCodeFile()" style="color:#ef4444; border-color:rgba(239,68,68,0.4);" title="Remove Code File">
+                                    <i class="fa-solid fa-trash"></i> Remove
+                                </button>
+                            </div>
                             <textarea id="code-text" class="custom-text" rows="4" placeholder="// Paste code snippet here..."></textarea>
-                            <button class="btn-submit" style="margin-top:0.6rem;" onclick="runCodeSummary()">ANALYZE CODE</button>
+                            <button class="btn-submit" style="margin-top:0.6rem;" onclick="runCodeSummary()"><i class="fa-solid fa-terminal"></i> ANALYZE CODE</button>
                         </div>
                     </div>
 
@@ -1685,7 +1715,10 @@
                             <span class="latency-tag">SUMMARY COMPLETE</span>
                             <div class="feedback-bar">
                                 <button class="action-icon-btn" onclick="copyPromptInput('web-query')" title="Copy Query"><i class="fa-solid fa-terminal"></i> Copy Query</button>
-                                <button class="action-icon-btn" onclick="copyResponse('summarizer-md')" title="Copy Summary Answer"><i class="fa-solid fa-copy"></i> Copy Answer</button>
+                                <button class="action-icon-btn" onclick="copyResponse('summarizer-md')" title="Copy Answer"><i class="fa-solid fa-copy"></i> Copy Answer</button>
+                                <button class="action-icon-btn" onclick="speakResponse('summarizer-md')" title="Read Aloud"><i class="fa-solid fa-volume-high"></i> Read Aloud</button>
+                                <button class="action-icon-btn" onclick="rateResponse('Summarizer', true)" title="Thumbs Up"><i class="fa-solid fa-thumbs-up"></i></button>
+                                <button class="action-icon-btn" onclick="rateResponse('Summarizer', false)" title="Thumbs Down"><i class="fa-solid fa-thumbs-down"></i></button>
                             </div>
                         </div>
                         <div id="summarizer-md"></div>
@@ -2222,6 +2255,50 @@
             if (previewBox) previewBox.style.display = 'none';
             const previewImg = document.getElementById('nemotron-img-preview');
             if (previewImg) previewImg.src = '';
+        }
+
+        function previewPdfFile(input) {
+            const previewBox = document.getElementById('pdf-file-preview-box');
+            const fileNameEl = document.getElementById('pdf-file-name');
+            const fileSizeEl = document.getElementById('pdf-file-size');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileNameEl.innerText = file.name;
+                fileSizeEl.innerText = (file.size / 1024).toFixed(1) + ' KB • PDF Document';
+                previewBox.style.display = 'flex';
+            } else {
+                clearPdfFile();
+            }
+        }
+
+        function clearPdfFile() {
+            const input = document.getElementById('pdf-input');
+            if (input) input.value = '';
+            const previewBox = document.getElementById('pdf-file-preview-box');
+            if (previewBox) previewBox.style.display = 'none';
+        }
+
+        function previewCodeFile(input) {
+            const previewBox = document.getElementById('code-file-preview-box');
+            const fileNameEl = document.getElementById('code-file-name');
+            const fileSizeEl = document.getElementById('code-file-size');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                fileNameEl.innerText = file.name;
+                fileSizeEl.innerText = (file.size / 1024).toFixed(1) + ' KB • Source Code';
+                previewBox.style.display = 'flex';
+            } else {
+                clearCodeFile();
+            }
+        }
+
+        function clearCodeFile() {
+            const input = document.getElementById('code-input');
+            if (input) input.value = '';
+            const previewBox = document.getElementById('code-file-preview-box');
+            if (previewBox) previewBox.style.display = 'none';
         }
 
         async function runWebSummary() {

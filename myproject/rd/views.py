@@ -740,6 +740,27 @@ Answer:"""
 
         summary = get_ai_response(prompt, model_name=SUMMARIZER_MODEL)
 
+        # Append Related Websites & Sources section
+        sources_md = ""
+        if results:
+            sources_list = []
+            for r in results:
+                lines = [line.strip() for line in r.strip().split("\n") if line.strip()]
+                t = ""
+                link = ""
+                for line in lines:
+                    if line.startswith("Title:"):
+                        t = line.replace("Title:", "").strip()
+                    elif line.startswith("Link:"):
+                        link = line.replace("Link:", "").strip()
+                if link:
+                    sources_list.append(f"- 🔗 [{t or link}]({link})")
+            if sources_list:
+                sources_md = "\n\n### 🌐 Related Websites & Sources\n" + "\n".join(sources_list)
+
+        if sources_md and "Related Websites" not in summary:
+            summary += sources_md
+
         doc_id = None
         try:
             doc = VectorDocumentSummary.objects.create(
@@ -840,6 +861,27 @@ Web background info:
 Explain in a few paragraphs how this additional web information expands upon the original document."""
             synthesis = get_ai_response(prompt_synthesis, model_name=SUMMARIZER_MODEL)
 
+        # Append Related Websites & Sources to PDF Summary
+        sources_md = ""
+        if web_results:
+            sources_list = []
+            for r in web_results:
+                lines = [line.strip() for line in r.strip().split("\n") if line.strip()]
+                t = ""
+                link = ""
+                for line in lines:
+                    if line.startswith("Title:"):
+                        t = line.replace("Title:", "").strip()
+                    elif line.startswith("Link:"):
+                        link = line.replace("Link:", "").strip()
+                if link:
+                    sources_list.append(f"- 🔗 [{t or link}]({link})")
+            if sources_list:
+                sources_md = "\n\n### 🌐 Related Websites & Background Sources\n" + "\n".join(sources_list)
+
+        if sources_md and "Related Websites" not in summary:
+            summary += sources_md
+
         return JsonResponse({
             "doc_id": doc_id,
             "summary": summary,
@@ -901,6 +943,17 @@ Tasks:
 Answer:"""
 
     analysis = get_ai_response(prompt_code, model_name=SUMMARIZER_MODEL)
+
+    # Append Related Documentation & Resources to Code Analysis
+    sources_md = "\n\n### 🌐 Related Documentation & Technical Resources\n"
+    if libs:
+        for lib in libs[:5]:
+            sources_md += f"- 🔗 [{lib} Official Documentation](https://pypi.org/project/{lib}/)\n"
+    else:
+        sources_md += "- 🔗 [Python Language & Standard Library Documentation](https://docs.python.org/3/)\n"
+
+    if "Related Documentation" not in analysis:
+        analysis += sources_md
 
     doc_id = None
     try:
