@@ -1078,10 +1078,229 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* ==========================================================================
+           RESPONSIVE MOBILE & TABLET OPTIMIZATIONS
+           ========================================================================== */
         @media (max-width: 900px) {
-            .analytics-bar { display: none; }
-            .sidebar { position: absolute; height: 100%; }
+            .analytics-bar { display: none !important; }
             .claude-starters-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            /* 📱 SIDEBAR RESPONSIVE */
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 85vw;
+                max-width: 320px;
+                height: 100vh;
+                z-index: 1000;
+            }
+            .sidebar.collapsed {
+                margin-left: -85vw;
+                transform: translateX(-100%);
+            }
+
+            /* 📱 TOP HEADER RESPONSIVE */
+            .top-header {
+                padding: 0.75rem 1rem;
+            }
+            .brand-title-box h1 {
+                font-size: 1.15rem;
+                letter-spacing: 0.5px;
+            }
+            .brand-title-box p {
+                font-size: 0.68rem;
+            }
+            .toggle-sidebar-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+                flex-shrink: 0;
+            }
+
+            /* 📱 CONTROL TOOLBAR RESPONSIVE */
+            .control-toolbar {
+                padding: 0.6rem 0.8rem;
+                gap: 0.6rem;
+            }
+            .param-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .cyber-select, input.custom-input, textarea.custom-text, .claude-textarea {
+                font-size: 16px !important; /* Prevents auto-zoom on iOS Safari */
+            }
+            .cyber-select {
+                max-width: 180px;
+                padding: 0.4rem 0.6rem;
+            }
+            .range-slider {
+                width: 80px;
+            }
+            .preset-chips {
+                width: 100%;
+                padding-bottom: 0.3rem;
+                -webkit-overflow-scrolling: touch;
+            }
+            .preset-chip {
+                padding: 0.35rem 0.7rem;
+                font-size: 0.7rem;
+            }
+
+            /* 📱 NAVIGATION TABS RESPONSIVE */
+            .navigation-tabs {
+                padding: 0.6rem 0.8rem 0 0.8rem;
+                gap: 0.4rem;
+                -webkit-overflow-scrolling: touch;
+            }
+            .nav-tab-btn {
+                padding: 0.55rem 0.85rem;
+                font-size: 0.78rem;
+                border-radius: 10px 10px 0 0;
+                flex-shrink: 0;
+            }
+
+            /* 📱 MAIN CONTENT & PANELS RESPONSIVE */
+            .panel-container {
+                padding: 0.75rem 0.6rem;
+            }
+            .card-box {
+                padding: 1rem;
+                border-radius: 14px;
+                gap: 1rem;
+            }
+            .card-header-badge {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            .badge-pill {
+                font-size: 0.68rem;
+                padding: 0.3rem 0.65rem;
+            }
+            .btn-submit {
+                padding: 0.75rem 1.2rem;
+                font-size: 0.85rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* 📱 CHAT & MESSAGES RESPONSIVE */
+            .claude-chat-container {
+                height: calc(100vh - 195px);
+                min-height: 420px;
+                border-radius: 16px;
+            }
+            .claude-header-bar {
+                padding: 0.75rem 0.9rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.3rem;
+            }
+            .claude-badge-pill {
+                font-size: 0.78rem;
+                padding: 0.3rem 0.75rem;
+            }
+            .chat-messages {
+                padding: 0.8rem;
+                gap: 0.9rem;
+            }
+            .msg-row {
+                max-width: 92%;
+                gap: 0.5rem;
+            }
+            .avatar-box {
+                width: 32px;
+                height: 32px;
+                font-size: 0.85rem;
+                border-radius: 10px;
+            }
+            .msg-bubble {
+                padding: 0.75rem 0.95rem;
+                font-size: 0.88rem;
+                line-height: 1.5;
+                text-align: left !important; /* Cleaner word flow on mobile screens */
+                border-radius: 14px;
+            }
+            .claude-starter-card {
+                padding: 0.8rem 0.95rem;
+            }
+            .claude-starter-card h4 {
+                font-size: 0.85rem;
+            }
+            .claude-starter-card p {
+                font-size: 0.76rem;
+            }
+
+            /* 📱 DOCK INPUT RESPONSIVE */
+            .claude-input-dock {
+                padding: 0.6rem 0.7rem;
+            }
+            .claude-input-wrapper {
+                padding: 0.4rem 0.7rem;
+                border-radius: 14px;
+                gap: 0.5rem;
+            }
+            .claude-textarea {
+                min-height: 38px;
+            }
+            .claude-dock-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 0.95rem;
+            }
+
+            /* 📱 RESPONSE CARD RESPONSIVE */
+            .response-card {
+                padding: 1rem;
+                border-radius: 14px;
+            }
+            .response-card div {
+                text-align: left !important;
+            }
+            .response-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+            .feedback-bar {
+                flex-wrap: wrap;
+                width: 100%;
+                gap: 0.4rem;
+            }
+            .action-icon-btn {
+                font-size: 0.72rem;
+                padding: 0.35rem 0.6rem;
+            }
+
+            /* 📱 TOAST RESPONSIVE */
+            .toast-msg {
+                bottom: 1.2rem;
+                right: 50%;
+                transform: translateX(50%);
+                width: 90%;
+                max-width: 320px;
+                text-align: center;
+                padding: 0.7rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .brand-title-box h1 {
+                font-size: 1rem;
+            }
+            .cyber-select {
+                max-width: 140px;
+            }
+            .nav-tab-btn {
+                font-size: 0.72rem;
+                padding: 0.5rem 0.7rem;
+            }
+            .msg-row {
+                max-width: 96%;
+            }
         }
     </style>
 </head>
