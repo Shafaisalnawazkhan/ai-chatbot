@@ -428,6 +428,20 @@
             opacity: 0.95;
         }
 
+        .web-search-input-wrapper {
+            display: flex;
+            gap: 0.8rem;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .search-btn-responsive {
+            height: auto;
+            min-height: 52px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .brand-title-box h1 {
             font-family: 'Outfit', sans-serif;
             font-size: 1.5rem;
@@ -1164,29 +1178,57 @@
                 gap: 0.5rem;
                 min-width: 0;
                 flex: 1;
+                width: 100%;
+                display: flex;
+                align-items: center;
             }
             .brand-title-box {
                 min-width: 0;
                 flex: 1;
+                overflow: hidden;
             }
             .brand-title-box h1 {
-                font-size: 1.05rem;
+                font-size: 0.95rem !important;
                 letter-spacing: 0.3px;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
             .brand-title-box p {
-                font-size: 0.65rem;
+                font-size: 0.62rem !important;
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
+            }
+            .new-chat-header-btn {
+                padding: 0.38rem 0.65rem;
+                font-size: 0.75rem;
+                border-radius: 10px;
+                flex-shrink: 0;
             }
             .toggle-sidebar-btn {
                 width: 36px;
                 height: 36px;
                 font-size: 0.95rem;
                 flex-shrink: 0;
+            }
+            .web-search-input-wrapper {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 0.6rem !important;
+                width: 100% !important;
+            }
+            .web-search-input-wrapper textarea {
+                width: 100% !important;
+                box-sizing: border-box !important;
+                min-height: 75px !important;
+            }
+            .search-btn-responsive {
+                width: 100% !important;
+                height: 46px !important;
+                min-height: 46px !important;
+                box-sizing: border-box !important;
+                justify-content: center !important;
             }
 
             /* 📱 CONTROL TOOLBAR RESPONSIVE */
@@ -1665,9 +1707,9 @@
                         <!-- WEB -->
                         <div id="sum-panel-web" class="input-group">
                             <label><i class="fa-solid fa-globe"></i> SEARCH QUERY</label>
-                            <div style="display:flex; gap:0.8rem; align-items:flex-start;">
-                                <textarea id="web-query" class="custom-text" rows="2" style="text-align:justify; flex:1;" placeholder="// Enter search query or topic..." onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); runWebSummary(); }"></textarea>
-                                <button class="btn-submit" style="height:54px; white-space:nowrap;" onclick="runWebSummary()"><i class="fa-solid fa-magnifying-glass"></i> SEARCH</button>
+                            <div class="web-search-input-wrapper">
+                                <textarea id="web-query" class="custom-text" rows="2" placeholder="// Enter search query or topic..." onkeydown="if(event.key==='Enter' && !event.shiftKey){ event.preventDefault(); runWebSummary(); }"></textarea>
+                                <button class="btn-submit search-btn-responsive" onclick="runWebSummary()"><i class="fa-solid fa-magnifying-glass"></i> SEARCH</button>
                             </div>
                         </div>
 
