@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: ai-chatbot
+    env: python
+    buildCommand: pip install -r requirements.txt && python myproject/manage.py migrate
+    startCommand: cd myproject && gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
